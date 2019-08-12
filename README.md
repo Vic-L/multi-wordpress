@@ -30,11 +30,17 @@ There will be a single `nginx` service to act as the gatekeeper for request traf
 
 Pull this repository in a server in the cloud with docker installed.
 
+### Development
+
 Run the command to start the wordpress sites in the root directory of the repository.
 
 ```
 docker-compose up
 ```
+
+#### Ports
+
+Ports that are set cannot be changed once the site is installed. The site will refer to the initial port that it was setup with when it looks for its assets.
 
 ## TODO
 
