@@ -1,0 +1,39 @@
+version: '3.7'
+
+services:
+  db1:
+    image: mysql:5.7
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: wordpresspw_root1
+      MYSQL_DATABASE: wordpressdb1
+      MYSQL_USER: wordpressuser1
+      MYSQL_PASSWORD: wordpresspw1
+    volumes:
+      - ./db1:/var/lib/mysql
+
+  wp1:
+    image: wordpress:5-fpm
+    restart: always
+    depends_on:
+      - db1
+    environment:
+      WORDPRESS_DB_HOST: db1:3306
+      WORDPRESS_DB_USER: wordpressuser1
+      WORDPRESS_DB_PASSWORD: wordpresspw1
+      WORDPRESS_DB_NAME: wordpressdb1
+    volumes:
+      - ./php-uploads.ini:/usr/local/etc/php/conf.d/uploads.ini
+      - ./wp1:/var/www/html
+
+  web:
+    image: nginx
+    depends_on:
+      - wp1
+    restart: always
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf
+      - ./wp1:/var/www/html
+      - ./logs:/var/log/nginx
+    ports:
+      - 80:80
