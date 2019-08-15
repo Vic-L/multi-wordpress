@@ -26,11 +26,15 @@ For each wordpress service, the wordpress fpm docker image is used for the wordp
 
 There will be a single `nginx` service to act as the gatekeeper for request traffic entering the server and directing the traffic to the correct wordpress service on the server.
 
+To add more sites to the setup read [here](#More Than 2 Sites).
+
 ## Usage
 
 Pull this repository in a server in the cloud with docker installed.
 
 ### Development
+
+Port 9000 is used by `fastcgi_pass`. Do not set port to 9000 for visualizer
 
 Run the command to start the wordpress sites in the root directory of the repository.
 
@@ -38,10 +42,66 @@ Run the command to start the wordpress sites in the root directory of the reposi
 docker-compose up
 ```
 
+### Deployment
+
+To be deployed on an EC2.
+
+#### Variables
+
+Some variables need to be changed.
+
+In the `docker-compose.yml` file, look for `## for development only` and `## for production` and uncomment commented codes and vice versa accordingly.
+
+In the `nginx.conf` file, which will be used once the uncomment action is done in the `docker-compose.yml` file, switch the `server_name` to the domain/subdomain/ipaddress that will be used for the respective wordpress sites.
+
+#### Commands
+
+To deploy, first setup the docker swarm, then deploy the stack by running
+```
+# NOTE: `docker stack deploy` command does not build the volumes (TODO why?)
+# Run `docker-compose up` first before `docker-compose down` and then the `docker stack deploy` command.
+docker swarm init
+docker stack deploy -c docker-compose.yml multi_wp # or any custom name for the stack
+```
+
+It might take some time for the services to be implemented completely. Run the command below to verify that the services that are running.
+```
+docker service ls
+```
+
+To stop, run
+```
+# for single-node manager node
+docker swarm leave --force
+
+# for worker node, if any
+docker swarm leave
+```
+
+#### Volumes
+
+With reference to the `docker-compose.yml` file, the `volumes` of each image is stored in the a virtual hard disk of the server. This is understandably not ideal as compared to using managed databases like `AWS RDS`. However, since we are just starting out, this is mitigatable, although we can scale with this setup and not use managed databases.
+
+Mounted volumes should be external harddisks separated from the boot disk that comes together with an AWS EC2 instances. This decoupling will allow better management of the data that need to be persisted and the ec2 instances that should be easily replicated.
+
+Should there be a need to scale with the addition of more servers, which is [highly unlikely](#Considerations) and in which case the site should be generating enough monetary revenue for you to invest in a better system than this project, consider the usage of `AWS EFS`. It is a virtual storage that can be mounted to multiple EC2 instances and can be set as the mounted volume of the host in the `volumes` of each images in the `docker-compose.yml` file.
+
+Data backups should be done on the EBS or EFS snapshot. `AWS Backup service` can be considered.
+
 #### Ports
 
 Ports that are set cannot be changed once the site is installed. The site will refer to the initial port that it was setup with when it looks for its assets.
 
+Use 8xxx port range for all wordpress apps, except 8080 which is used for `docker-visualizer`.
+Port 9000 is used by `fastcgi_pass`.
+
+### More Than 2 Sites
+
+To have more than 2 sites, create new `db` and `wp` images in the `docker-compose.yml` file, and add on to the `depends_on`, `volumes`, `ports` (only development needs to add a new listener) keys in the `web` service.
+
+In the `nginx` file, add listener to the new `wp` for `fastcgi_pass` params. Add to the `listen` directive on the ports you used for the new images.
+
 ## TODO
 
-1. Test RAM usage on a small EC2 usage.
+1. Find out why docker stack deploy does not creat volumes.
+2. Better way to manage changing variables in `docker-compose.yml` file for different environments
