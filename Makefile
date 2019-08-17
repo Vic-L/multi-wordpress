@@ -42,4 +42,9 @@ destroy: check-argument build
 	-v $(PWD)/terraform.tfstate:/workspace/terraform.tfstate \
 	--env AWS_ACCESS_KEY_ID=$(AWS_ACCESS_KEY_ID) \
 	--env AWS_SECRET_ACCESS_KEY=$(AWS_SECRET_ACCESS_KEY) \
-	multi-wordpress-terraform destroy
+	multi-wordpress-terraform \
+	destroy \
+	-target aws_security_group.this \
+	-target aws_volume_attachment.this \
+	-target aws_eip.this \
+	-target aws_instance.this

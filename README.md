@@ -107,5 +107,16 @@ In the `nginx` file, add listener to the new `wp` for `fastcgi_pass` params. Add
 
 1. Find out why docker stack deploy does not creat volumes.
 2. Better way to manage changing variables in `docker-compose.yml` file for different environments
+3. Add tag to `root_block_device` of ec2 instance [https://github.com/hashicorp/terraform/issues/3629](https://github.com/hashicorp/terraform/issues/3629)
+
 
 ## Current Progress
+
+### Terraform
+
+These are notes in point form. Require organising and update before merging into master.
+
+* `key_name` of `aws_instance` need to be existing
+* Named profile setup for is required for deploying terraform
+* tags `Name` are `multi_wordpress` by default
+* makefile using -target flag to destroy all resources except the ebs_volume that needs to persist, refer [this issue](https://github.com/terraform-providers/terraform-provider-aws/)issues/2416)
