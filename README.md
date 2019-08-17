@@ -50,6 +50,8 @@ To be deployed on an EC2.
 
 Some variables need to be changed.
 
+`wp1`, `wp2`, `db1` and `db2` are the sample databases for this project's setup. Change accordingly to the name of your projects you desired. Make sure add the folders resultant from these name changes in `.dockerignore` file so that it is not pushed to Docker daemon as part of the "build context" to save time when building any images.
+
 In the `docker-compose.yml` file, look for `## for development only` and `## for production` and uncomment commented codes and vice versa accordingly.
 
 In the `nginx.conf` file, which will be used once the uncomment action is done in the `docker-compose.yml` file, switch the `server_name` to the domain/subdomain/ipaddress that will be used for the respective wordpress sites.
