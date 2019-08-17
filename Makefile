@@ -1,9 +1,19 @@
 AWS_ACCESS_KEY_ID = $(shell aws --profile $(AWS_PROFILE) configure get aws_access_key_id)
 AWS_SECRET_ACCESS_KEY = $(shell aws --profile $(AWS_PROFILE) configure get aws_secret_access_key)
+PWD = $(shell pwd)
+
 default-target: check-argument build
+	@echo "########################"
 	@echo AWS_ACCESS_KEY_ID IS $(AWS_ACCESS_KEY_ID)
 	@echo AWS_SECRET_ACCESS_KEY IS $(AWS_SECRET_ACCESS_KEY)
-	docker run --rm --env AWS_ACCESS_KEY_ID=$(AWS_ACCESS_KEY_ID) --env AWS_SECRET_ACCESS_KEY=$(AWS_SECRET_ACCESS_KEY) multi-wordpress-terraform apply
+	@echo "########################"
+	docker run \
+	--rm \
+	-it \
+	-v $(PWD)/terraform.tfstate:/workspace/terraform.tfstate \
+	--env AWS_ACCESS_KEY_ID=$(AWS_ACCESS_KEY_ID) \
+	--env AWS_SECRET_ACCESS_KEY=$(AWS_SECRET_ACCESS_KEY) \
+	multi-wordpress-terraform apply
 
 ###################
 
@@ -20,3 +30,16 @@ endif
 
 build:
 	docker build -t multi-wordpress-terraform:latest .
+
+destroy: check-argument build
+	@echo "########################"
+	@echo AWS_ACCESS_KEY_ID IS $(AWS_ACCESS_KEY_ID)
+	@echo AWS_SECRET_ACCESS_KEY IS $(AWS_SECRET_ACCESS_KEY)
+	@echo "########################"
+	docker run \
+	--rm \
+	-it \
+	-v $(PWD)/terraform.tfstate:/workspace/terraform.tfstate \
+	--env AWS_ACCESS_KEY_ID=$(AWS_ACCESS_KEY_ID) \
+	--env AWS_SECRET_ACCESS_KEY=$(AWS_SECRET_ACCESS_KEY) \
+	multi-wordpress-terraform destroy

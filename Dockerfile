@@ -1,6 +1,6 @@
-FROM hashicorp/terraform:full
+FROM hashicorp/terraform:light
 WORKDIR /workspace
-COPY ./aws.tf .
-RUN echo $AWS_ACCESS_KEY_ID
-RUN echo $AWS_SECRET_ACCESS_KEY
+COPY ./setup.tf .
 RUN terraform init
+RUN rm setup.tf
+COPY ./aws.tf .

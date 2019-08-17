@@ -107,3 +107,5 @@ In the `nginx` file, add listener to the new `wp` for `fastcgi_pass` params. Add
 
 1. Find out why docker stack deploy does not creat volumes.
 2. Better way to manage changing variables in `docker-compose.yml` file for different environments
+
+## Current Progress
