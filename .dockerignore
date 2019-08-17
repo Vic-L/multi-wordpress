@@ -1,0 +1,6 @@
+db*
+wp*
+.git
+logs
+nginx*
+php*

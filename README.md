@@ -1,62 +1,114 @@
-# Multi Wordpress Sites
+## Multi Wordpress Sites
 
-Sets up multiple wordpress sites on same machine using `docker-compose`.
+Sets up multiple wordpress sites on same machine.
 
 ## Motivation
 
-To save money! The purpose of hosting multiple wordpress site on 1 server is to save the server cost. when I just start out sites, I am reluctant to spend money on them without a clear ROI.
+The purpose of hosting multiple wordpress site on 1 server is to save the server cost. When I just start out new sites, I am reluctant to spend money on them without a clear ROI.
 
-This setup allows me to serve the sites at the cost of 1 server.
+This setup allows me to serve the sites at the cost of 1 server. It can be used on many account which I may have for different personas.
 
-## Considerations
+### Considerations
 
-It might be better to serve these sites using kubernetes which orchestrates the deployment and ensure there is no downtime. However, it is costly and not for my use case of such a small scale.
+1. It might be better to serve these sites using kubernetes (this project uses containerization technologies) to orchestrates the deployment and ensure there is no downtime. However, it is costly and not for my use case of such a small scale.
 
-Using kubernetes on just 1 server may still work and allow for scaling with ease in the future, but the master node itself will require high RAM, which translates to high unnecessary costs again, for my use case. Hence, back to `docker-compose`.
+2. Using kubernetes on just 1 server may still work and allow for scaling with ease in the future. It also ensure blue green deployment and maximum uptime. However, the master node itself will require high RAM, which translates to high costs again. It does not fit my use case. TODO: Currently testing with `docker stack`, if it takes up a lot of RAM too, need to find alternatives.
 
-The RAM usage of docker on my local machine when running 3 wordpress sites was less than 1GB, using `docker stats` to benchmark. Hence, it does not require a large amount of ram. This requires testing as stated in [TODO](#TODO).
+3. The RAM usage of docker on my local machine when running 3 wordpress sites was less than 1GB, using `docker stats` to benchmark. Hence, it does not require a large amount of ram, cost can be brought down.
 
-This setup will not be able to handle high traffic load. My mitigation involves using a CDN to reduce the actual traffic on the server. I will be using `AWS CloudFront` to cache the resources and tank the load, relieving the small server from load.
+4. This setup will not be able to handle high traffic load. My mitigation involves using a CDN to reduce the actual traffic on the server. I will be using `AWS CloudFront` to cache the resources and tank the load, relieving the small server from load.
 
-[`AWS CloudFront` allows for POST requests from its edge locations too, so a typical website with write requests can still function properly. However, the load problem will occur if too much POST requests occur, but that is unlikely. If website is targeted by bots and that unlikely scenario occurs, there should be other methods to mitigate this apart from scaling the servers. Captcha on the frontend is one of these methods for example.
+5. [`AWS CloudFront` allows for POST requests from its edge locations too, so a typical website with write requests can still function properly. However, the load problem will occur if too much POST requests occur, but that is unlikely. If website is targeted by bots and that unlikely scenario occurs, there should be other methods to mitigate this apart from scaling the servers. Captcha on the frontend is one of these methods for example.
 
-## Architecture
+6. Should there be that many genuine POST requests, we should be in a position to be able to afford to spend more money on better and proper infrastructure like kubernetes. This setup can be easily portable. Read more about the [Architecture](#Architecture) in the [Features](#Features) section.
+
+## Build status
+
+-
+
+## Code style
+
+[Naming convention on Terraform](https://www.terraform.io/docs/extend/best-practices/naming.html).
+ 
+## Screenshots
+
+-
+
+## Tech/framework used
+
+* Docker Compose
+* Docker Stack
+* Dockerfile
+* Terraform
+* Makefile
+
+## Features
+
+Easily setup multiple wordpress sites on the same server.
+
+Data can be ported should there be a need to scale and decouple.
 
 For each wordpress service, the wordpress fpm docker image is used for the wordpress engine. The content is mapped to a local directory. Each wordpress service will have its own database, whose volume is mapped to local directories respective to each service as well.
 
+NOTE: the directories will be created automatically on development with `docker-compose up -d`. However, `docker stack deploy` will not do so. It will require the folders to exist.
+
 There will be a single `nginx` service to act as the gatekeeper for request traffic entering the server and directing the traffic to the correct wordpress service on the server.
 
-To add more sites to the setup read [here](#More Than 2 Sites).
+Docker visualizer is meant to monitor the containers. However, precaution should be taken to deploy in production.
+
+### Add More Sites
+
+Port 9000 is used by `fastcgi_pass`. Do not set port to 9000 for visualizer.
+
+## Installation
+
+* Install Docker
+* Install Make
 
 ## Usage
 
-Pull this repository in a server in the cloud with docker installed.
-
 ### Development
 
-Port 9000 is used by `fastcgi_pass`. Do not set port to 9000 for visualizer
-
-Run the command to start the wordpress sites in the root directory of the repository.
+Run the command to start the wordpress sites in the **root directory**:
 
 ```
-docker-compose up
+docker-compose up -d
+```
+This will setup 2 wp sites, `wp1` and `wp2`, and their respective databases, `db1` and `db2`, mapped to newly created directories. 
+
+TODO how to add more sites? This repository is meant for reference if you want to setup similar multiple WP sites on the same server. It will require changing variables in the files, which require understanding of how everything is pieced together.
+
+To stop, run:
+```
+docker-compose down
 ```
 
-### Deployment
+The databases and wordpress content will persist when you start the server subsequently.
 
-To be deployed on an EC2.
+### Production
+
+#### SSH Key
+
+Generate an ssh key and name it `multi_wordpress`. the output files are `multi_wordpress` and `multi_wordpress.pub`. Save them to the root directory of this project. This keys will be used to generate the aws key pair and connect to the ec2 instance during provision.
+
+NOTE: store these keys securely, but make them available within the root directory during deployment operations involving Terraform as the config file will be referencing them.
 
 #### Variables
 
-Some variables need to be changed.
+Before deployment to production, some variables need to be changed.
+
+`wp1`, `wp2`, `db1` and `db2` are the sample databases for this project's setup. Change accordingly to the name of your projects you desired. Make sure add the folders resultant from these name changes in `.dockerignore` file so that it is not pushed to Docker daemon as part of the "build context" to save time when building any images. These folders are meant for development only. When push to server, the folders need to be created manually (they need to exist first as a requirement for a `named volume` to be binded to local directory).
 
 In the `docker-compose.yml` file, look for `## for development only` and `## for production` and uncomment commented codes and vice versa accordingly.
 
+TODO write init script to auto replace on project startup and test script? ### More Than 2 Sites. To have more than 2 sites, create new `db` and `wp` images in the `docker-compose.yml` file, and add on to the `depends_on`, `volumes`, `ports` (only development needs to add a new listener) keys in the `web` service.
+
+In the `nginx` file, add listener to the new `wp` for `fastcgi_pass` params. Add to the `listen` directive on the ports you used for the new images.
+
 In the `nginx.conf` file, which will be used once the uncomment action is done in the `docker-compose.yml` file, switch the `server_name` to the domain/subdomain/ipaddress that will be used for the respective wordpress sites.
 
-#### Commands
-
-To deploy, first setup the docker swarm, then deploy the stack by running
+TODO after terraform config, figure out how to run the app in production.
+To run in production, first setup the docker swarm, then deploy the stack by running
 ```
 # NOTE: `docker stack deploy` command does not build the volumes (TODO why?)
 # Run `docker-compose up` first before `docker-compose down` and then the `docker stack deploy` command.
@@ -78,6 +130,32 @@ docker swarm leave --force
 docker swarm leave
 ```
 
+## Tests
+Describe and show how to run the tests with code examples.
+
+## How to use?
+If people like your project they’ll want to learn how they can use it. To do so include step by step guide to use your project.
+
+## Contribute
+
+Let people know how they can contribute into your project. A [contributing guideline](https://github.com/zulip/zulip-electron/blob/master/CONTRIBUTING.md) will be a big plus.
+
+## Credits
+
+
+
+## License
+A short snippet describing the license (MIT, Apache etc)
+
+MIT © [Yourname]()
+
+
+
+
+#### Commands
+
+
+
 #### Volumes
 
 With reference to the `docker-compose.yml` file, the `volumes` of each image is stored in the a virtual hard disk of the server. This is understandably not ideal as compared to using managed databases like `AWS RDS`. However, since we are just starting out, this is mitigatable, although we can scale with this setup and not use managed databases.
@@ -95,13 +173,24 @@ Ports that are set cannot be changed once the site is installed. The site will r
 Use 8xxx port range for all wordpress apps, except 8080 which is used for `docker-visualizer`.
 Port 9000 is used by `fastcgi_pass`.
 
-### More Than 2 Sites
 
-To have more than 2 sites, create new `db` and `wp` images in the `docker-compose.yml` file, and add on to the `depends_on`, `volumes`, `ports` (only development needs to add a new listener) keys in the `web` service.
+1. Better way to manage changing variables in `docker-compose.yml` file for different environments
 
-In the `nginx` file, add listener to the new `wp` for `fastcgi_pass` params. Add to the `listen` directive on the ports you used for the new images.
+
+## NOTES for content writing
+### Terraform
+
+These are notes in point form. Require organising and update before merging into master.
+
+* `key_name` of `aws_instance` need to be existing
+* Named profile setup for is required for deploying terraform
+* tags `Name` are `multi_wordpress` by default
+* makefile using -target flag to destroy all resources except the ebs_volume that needs to persist, refer [this issue](https://github.com/terraform-providers/terraform-provider-aws/)issues/2416)
+* `depends_on` module not working for `module`. So there may be race condition when creating the s3 secrets bucket and its logging bucket if they do not already exist.
+* s3 secrets folder to store all ssh keys (https://stackoverflow.com/a/52868251/2667545) to git pull
+
+## Current Progress
+mount ebs and only format it if empty
+create folders
 
 ## TODO
-
-1. Find out why docker stack deploy does not creat volumes.
-2. Better way to manage changing variables in `docker-compose.yml` file for different environments
