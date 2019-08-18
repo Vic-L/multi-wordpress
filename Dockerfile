@@ -1,6 +1,13 @@
 FROM hashicorp/terraform:light
 WORKDIR /workspace
-COPY ./setup.tf .
+
+COPY ./variables.tf .
+
+COPY ./provider.tf .
 RUN terraform init
-RUN rm setup.tf
-COPY ./aws.tf .
+
+COPY ./secrets_bucket.tf .
+RUN terraform init
+
+COPY ./secrets_iam.tf .
+COPY ./main.tf .

@@ -1,32 +1,3 @@
-#### VARIABLES ####
-
-variable "availability_zone" {
-  type = string
-  default = "us-east-1a"
-}
-
-variable "aws_ebs_volume" {
-  type = map
-  default = {
-    size = 16
-  }
-}
-
-variable "aws_instance" {
-  type = map
-  default = {
-    key_name = "multi_wordpress"
-  }
-}
-
-#### END ####
-
-#### MAIN ####
-
-provider "aws" {
-  region = "us-east-1"
-}
-
 resource "aws_security_group" "this" {
   name = "SG-multi_wordpress"
   description = "Security group for multi_wordpress project"
@@ -56,7 +27,7 @@ resource "aws_security_group" "this" {
   }
 
   tags = {
-    Name = "multi_wordpress"
+    Name = var.project_name
   }
 }
 
@@ -77,7 +48,7 @@ resource "aws_ebs_volume" "this" {
   encrypted = false
   # kms_key_id = 
   tags = {
-    Name = "multi_wordpress"
+    Name = var.project_name
   }
 }
 
@@ -92,7 +63,7 @@ resource "aws_eip" "this" {
   vpc = true
   instance = aws_instance.this.id
   tags = {
-    Name = "multi_wordpress"
+    Name = var.project_name
   }
 }
 
@@ -101,9 +72,8 @@ resource "aws_instance" "this" {
   instance_type = "t2.micro"
   availability_zone = var.availability_zone
   key_name = var.aws_instance.key_name
+  iam_instance_profile = "${aws_iam_instance_profile.secrets_bucket.name}"
   tags = {
-    Name = "multi_wordpress"
+    Name = var.project_name
   }
 }
-
-#### END ####

@@ -44,7 +44,9 @@ destroy: check-argument build
 	--env AWS_SECRET_ACCESS_KEY=$(AWS_SECRET_ACCESS_KEY) \
 	multi-wordpress-terraform \
 	destroy \
+	-target aws_s3_bucket.secrets_logging_bucket \
 	-target aws_security_group.this \
 	-target aws_volume_attachment.this \
 	-target aws_eip.this \
-	-target aws_instance.this
+	-target aws_instance.this \
+	-target module.secrets_bucket \

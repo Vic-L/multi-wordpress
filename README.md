@@ -120,3 +120,8 @@ These are notes in point form. Require organising and update before merging into
 * Named profile setup for is required for deploying terraform
 * tags `Name` are `multi_wordpress` by default
 * makefile using -target flag to destroy all resources except the ebs_volume that needs to persist, refer [this issue](https://github.com/terraform-providers/terraform-provider-aws/)issues/2416)
+* `depends_on` module not working for `module`. So there may be race condition when creating the s3 secrets bucket and its logging bucket if they do not already exist.
+
+### Misc
+s3 secrets folder to store all my keys (https://stackoverflow.com/a/52868251/2667545) and make it standalone tf and a module?
+setup docker stack on EC2
