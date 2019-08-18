@@ -4,26 +4,28 @@ resource "aws_security_group" "this" {
   ingress {
     from_port = 80
     to_port = 80
-    protocol = "http"
+    protocol = "tcp"
+    cidr_blocks = [
+      "0.0.0.0/0"
+    ]
   }
 
   ingress {
     from_port = 22
     to_port = 22
-    protocol = "ssh"
-  }
-
-  ingress {
-    from_port = 0
-    to_port = 0
-    protocol = "icmp"
+    protocol = "tcp"
+    cidr_blocks = [
+      "0.0.0.0/0"
+    ]
   }
 
   egress {
-    from_port       = 0
-    to_port         = 0
-    protocol        = "-1"
-    cidr_blocks     = ["0.0.0.0/0"]
+    from_port = 0
+    to_port = 0
+    protocol = "-1"
+    cidr_blocks = [
+      "0.0.0.0/0"
+    ]
   }
 
   tags = {
@@ -73,6 +75,10 @@ resource "aws_instance" "this" {
   availability_zone = var.availability_zone
   key_name = var.aws_instance.key_name
   iam_instance_profile = "${aws_iam_instance_profile.secrets_bucket.name}"
+  security_groups = [
+    aws_security_group.this.name
+  ]
+  
   tags = {
     Name = var.project_name
   }

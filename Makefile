@@ -36,6 +36,7 @@ destroy: check-argument build
 	@echo AWS_ACCESS_KEY_ID IS $(AWS_ACCESS_KEY_ID)
 	@echo AWS_SECRET_ACCESS_KEY IS $(AWS_SECRET_ACCESS_KEY)
 	@echo "########################"
+	@echo NOTE: This operation will not destroy the `aws_ebs_volume`.
 	docker run \
 	--rm \
 	-it \
