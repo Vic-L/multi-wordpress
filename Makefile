@@ -7,13 +7,16 @@ default-target: check-argument build
 	@echo AWS_ACCESS_KEY_ID IS $(AWS_ACCESS_KEY_ID)
 	@echo AWS_SECRET_ACCESS_KEY IS $(AWS_SECRET_ACCESS_KEY)
 	@echo "########################"
+	chmod 400 multi_wordpress.pub
+	chmod 400 multi_wordpress
 	docker run \
 	--rm \
 	-it \
 	-v $(PWD)/terraform.tfstate:/workspace/terraform.tfstate \
 	--env AWS_ACCESS_KEY_ID=$(AWS_ACCESS_KEY_ID) \
 	--env AWS_SECRET_ACCESS_KEY=$(AWS_SECRET_ACCESS_KEY) \
-	multi-wordpress-terraform apply
+	multi-wordpress-terraform \
+	apply 
 
 ###################
 
@@ -36,7 +39,7 @@ destroy: check-argument build
 	@echo AWS_ACCESS_KEY_ID IS $(AWS_ACCESS_KEY_ID)
 	@echo AWS_SECRET_ACCESS_KEY IS $(AWS_SECRET_ACCESS_KEY)
 	@echo "########################"
-	@echo NOTE: This operation will not destroy the `aws_ebs_volume`.
+	@echo NOTE: This operation will not destroy the "aws_ebs_volume".
 	docker run \
 	--rm \
 	-it \
@@ -53,3 +56,4 @@ destroy: check-argument build
 	-target aws_iam_instance_profile.secrets_bucket \
 	-target aws_iam_role.secrets_bucket \
 	-target module.secrets_bucket \
+	-target aws_key_pair.this

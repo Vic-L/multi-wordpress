@@ -1,3 +1,8 @@
+resource "aws_key_pair" "this" {
+  key_name   = "multi_wordpress"
+  public_key = file("${path.module}/multi_wordpress.pub")
+}
+
 resource "aws_security_group" "this" {
   name = "SG-multi_wordpress"
   description = "Security group for multi_wordpress project"
@@ -49,6 +54,7 @@ resource "aws_ebs_volume" "this" {
 
   encrypted = false
   # kms_key_id = 
+
   tags = {
     Name = var.project_name
   }
@@ -73,7 +79,7 @@ resource "aws_instance" "this" {
   ami = "ami-035b3c7efe6d061d5" # Amazon Linux 2018
   instance_type = "t2.micro"
   availability_zone = var.availability_zone
-  key_name = var.aws_instance.key_name
+  key_name = aws_key_pair.this.key_name
   iam_instance_profile = "${aws_iam_instance_profile.secrets_bucket.name}"
   security_groups = [
     aws_security_group.this.name

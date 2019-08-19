@@ -3,13 +3,6 @@ variable "project_name" {
   default = "multi_wordpress"
 }
 
-variable "aws_instance" {
-  type = map
-  default = {
-    key_name = "multi_wordpress"
-  }
-}
-
 variable "availability_zone" {
   type = string
   default = "us-east-1a"

@@ -30,17 +30,6 @@ resource "aws_iam_policy" "secrets_bucket" {
 EOF
 }
 
-data "aws_iam_policy_document" "secrets_bucket" {
-  statement {
-    actions = ["sts:AssumeRole"]
-
-    principals {
-      type        = "Service"
-      identifiers = ["ec2.amazonaws.com"]
-    }
-  }
-}
-
 resource "aws_iam_role" "secrets_bucket" {
   name = "${var.secrets_bucket_name}-iam_role"
   assume_role_policy = data.aws_iam_policy_document.secrets_bucket.json
