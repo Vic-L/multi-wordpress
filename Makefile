@@ -50,4 +50,6 @@ destroy: check-argument build
 	-target aws_volume_attachment.this \
 	-target aws_eip.this \
 	-target aws_instance.this \
+	-target aws_iam_instance_profile.secrets_bucket \
+	-target aws_iam_role.secrets_bucket \
 	-target module.secrets_bucket \
