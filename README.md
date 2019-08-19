@@ -50,7 +50,7 @@ To be deployed on an EC2.
 
 Some variables need to be changed.
 
-`wp1`, `wp2`, `db1` and `db2` are the sample databases for this project's setup. Change accordingly to the name of your projects you desired. Make sure add the folders resultant from these name changes in `.dockerignore` file so that it is not pushed to Docker daemon as part of the "build context" to save time when building any images.
+`wp1`, `wp2`, `db1` and `db2` are the sample databases for this project's setup. Change accordingly to the name of your projects you desired. Make sure add the folders resultant from these name changes in `.dockerignore` file so that it is not pushed to Docker daemon as part of the "build context" to save time when building any images. These folders are meant for development only. When push to server, the folders need to be created manually (they need to exist first as a requirement for a `named volume` to be binded to local directory).
 
 In the `docker-compose.yml` file, look for `## for development only` and `## for production` and uncomment commented codes and vice versa accordingly.
 

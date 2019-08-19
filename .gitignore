@@ -1,5 +1,12 @@
-db1
-db2
-wp1
-wp2
-logs
+
+db1/*
+db2/*
+wp1/*
+wp2/*
+logs/*
+
+!db1/.gitkeep
+!db2/.gitkeep
+!wp1/.gitkeep
+!wp2/.gitkeep
+!logs/.gitkeep
