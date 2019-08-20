@@ -197,7 +197,6 @@ These are notes in point form. Require organising and update before merging into
 * startup.sh script need to give time for permission to propagate
 
 ## Current Progress
-docker-compose split into diff env
 logs split
 remove nginx.conf
 write script to add content to docker-compose.production.yml file, nginx.conf, and startup.sh files

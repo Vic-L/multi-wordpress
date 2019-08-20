@@ -5,108 +5,23 @@ services:
   db1:
     image: mysql:5.7
     restart: always
-    environment:
-      MYSQL_ROOT_PASSWORD: wordpresspw_root1
-      MYSQL_DATABASE: wordpressdb1
-      MYSQL_USER: wordpressuser1
-      MYSQL_PASSWORD: wordpresspw1
-    volumes:
-      - ./db1:/var/lib/mysql
-    deploy:
-      placement:
-        constraints:
-          - node.role == manager
-      replicas: 1
   db2:
     image: mysql:5.7
     restart: always
-    environment:
-      MYSQL_ROOT_PASSWORD: wordpresspw_root2
-      MYSQL_DATABASE: wordpressdb2
-      MYSQL_USER: wordpressuser2
-      MYSQL_PASSWORD: wordpresspw2
-    volumes:
-      - ./db2:/var/lib/mysql
-    deploy:
-      placement:
-        constraints:
-          - node.role == manager
-      replicas: 1
 
   # wordpress
   wp1:
     image: wordpress:5-fpm
     restart: always
-    depends_on:
-      - db1
-    environment:
-      WORDPRESS_DB_HOST: db1:3306
-      WORDPRESS_DB_USER: wordpressuser1
-      WORDPRESS_DB_PASSWORD: wordpresspw1
-      WORDPRESS_DB_NAME: wordpressdb1
-    working_dir: /var/www/html/wp1
     volumes:
       - ./php-uploads.ini:/usr/local/etc/php/conf.d/uploads.ini
-      - ./wp1:/var/www/html/wp1
-    deploy:
-      placement:
-        constraints:
-          - node.role == manager
-      replicas: 1
   wp2:
     image: wordpress:5-fpm
     restart: always
-    depends_on:
-      - db2
-    environment:
-      WORDPRESS_DB_HOST: db2:3306
-      WORDPRESS_DB_USER: wordpressuser2
-      WORDPRESS_DB_PASSWORD: wordpresspw2
-      WORDPRESS_DB_NAME: wordpressdb2
-    working_dir: /var/www/html/wp2
     volumes:
       - ./php-uploads.ini:/usr/local/etc/php/conf.d/uploads.ini
-      - ./wp2:/var/www/html/wp2
-    deploy:
-      placement:
-        constraints:
-          - node.role == manager
-      replicas: 1
 
   # nginx
   web:
     image: nginx
-    depends_on:
-      - wp1
-      - wp2
     restart: always
-    volumes:
-      ## for development only
-      - ./nginx.dev.conf:/etc/nginx/conf.d/default.conf
-      ## for production
-      # - ./nginx.conf:/etc/nginx/conf.d/default.conf
-      - ./logs:/var/log/nginx
-      - ./wp1:/var/www/html/wp1
-      - ./wp2:/var/www/html/wp2
-    ports:
-      ## for development only
-      - 8000:8000
-      - 8001:8001
-      ## for production
-      # - 80:80
-    deploy:
-      placement:
-        constraints:
-          - node.role == manager
-      replicas: 1
-  
-  # visualizer
-  visualizer:
-    image: dockersamples/visualizer
-    deploy:
-      placement:
-        constraints:
-          - node.role == manager
-    ## NOTE: you may want to add more security features to prevent easy access on production
-    ports:
-      - 9999:8080

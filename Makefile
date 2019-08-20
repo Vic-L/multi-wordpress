@@ -72,3 +72,10 @@ destroy: check-argument build
 	-target aws_iam_role.secrets_bucket \
 	-target module.secrets_bucket \
 	-target aws_key_pair.this
+
+# Development
+
+start:
+	docker-compose -f docker-compose.yml -f docker-compose.development.yml up -d
+stop:
+	docker-compose -f docker-compose.yml -f docker-compose.development.yml down
