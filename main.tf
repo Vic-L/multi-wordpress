@@ -4,7 +4,7 @@ resource "aws_key_pair" "this" {
 }
 
 resource "aws_security_group" "this" {
-  name = "SG-multi_wordpress"
+  name = "multi_wordpress"
   description = "Security group for multi_wordpress project"
   ingress {
     from_port = 80
@@ -65,6 +65,7 @@ resource "aws_volume_attachment" "this" {
   device_name = "/dev/sdf"
   volume_id   = "${aws_ebs_volume.this.id}"
   instance_id = "${aws_instance.this.id}"
+  skip_destroy = true
 }
 
 resource "aws_eip" "this" {
@@ -77,7 +78,7 @@ resource "aws_eip" "this" {
 
 resource "aws_instance" "this" {
   ami = "ami-035b3c7efe6d061d5" # Amazon Linux 2018
-  instance_type = "t2.micro"
+  instance_type = "t2.nano"
   availability_zone = var.availability_zone
   key_name = aws_key_pair.this.key_name
   iam_instance_profile = "${aws_iam_instance_profile.secrets_bucket.name}"
