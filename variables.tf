@@ -24,3 +24,8 @@ variable "secrets_logging_bucket_name" {
   type = string
   default = "multi-wordpress-secrets-logging-bucket"
 }
+
+variable "multi_wordpress_repository" {
+  type = string
+  default = ""
+}

@@ -1,14 +1,7 @@
-AWS_ACCESS_KEY_ID = $(shell aws --profile $(AWS_PROFILE) configure get aws_access_key_id)
-AWS_SECRET_ACCESS_KEY = $(shell aws --profile $(AWS_PROFILE) configure get aws_secret_access_key)
-
-# init env var for aws cli to use https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-envvars.html
-export AWS_ACCESS_KEY_ID := $(AWS_ACCESS_KEY_ID)
-export AWS_SECRET_ACCESS_KEY := $(AWS_SECRET_ACCESS_KEY)
-export AWS_DEFAULT_REGION := us-east-1
-
 PWD = $(shell pwd)
 
-default-target: check-argument build
+.PHONY: default-target
+default-target: build
 	@echo "########################"
 	@echo AWS_ACCESS_KEY_ID IS $(AWS_ACCESS_KEY_ID)
 	@echo AWS_SECRET_ACCESS_KEY IS $(AWS_SECRET_ACCESS_KEY)
@@ -22,22 +15,38 @@ default-target: check-argument build
 	--env AWS_ACCESS_KEY_ID=$(AWS_ACCESS_KEY_ID) \
 	--env AWS_SECRET_ACCESS_KEY=$(AWS_SECRET_ACCESS_KEY) \
 	multi-wordpress-terraform \
-	apply 
+	apply \
+	-var multi_wordpress_repository=$(GIT_REPOSITORY)
 
 ###################
 
 define MISSING_AWS_PROFILE
 AWS_PROFILE is undefined.
-Run command `make AWS_PROFILE=your_profile <TARGET>`.
+Run command `make AWS_PROFILE=your_profile GIT_REPOSITORY=git@provider.com:username/repo_name.git <TARGET>`.
 Make sure your profile has the relevant permissions to run the various actions (TODO) as defined in the `main.tf` file.
 endef
 
+define MISSING_GIT_REPOSITORY
+GIT_REPOSITORY is undefined.
+Run command `make AWS_PROFILE=your_profile GIT_REPOSITORY=git@provider.com:username/repo_name.git <TARGET>`.
+Make sure you are using the url version (starting with "https://") instead of the git version (starting with "git:").
+endef
+
+.PHONY: check-argument
 check-argument:
 ifndef AWS_PROFILE
 	$(error $(MISSING_AWS_PROFILE))
+else ifndef GIT_REPOSITORY
+	$(error $(MISSING_GIT_REPOSITORY))
+else
+	# init env var for aws cli to use https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-envvars.html
+	$(eval export AWS_ACCESS_KEY_ID := $(shell aws --profile $(AWS_PROFILE) configure get aws_access_key_id))
+	$(eval export AWS_SECRET_ACCESS_KEY := $(shell aws --profile $(AWS_PROFILE) configure get aws_secret_access_key))
+	$(eval export AWS_DEFAULT_REGION := us-east-1)
 endif
 
-build:
+.PHONY: build
+build: check-argument
 	docker build -t multi-wordpress-terraform:latest .
 
 destroy: check-argument build

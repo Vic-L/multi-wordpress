@@ -89,7 +89,13 @@ The databases and wordpress content will persist when you start the server subse
 
 #### SSH Key
 
-Generate an ssh key and name it `multi_wordpress`. the output files are `multi_wordpress` and `multi_wordpress.pub`. Save them to the root directory of this project. This keys will be used to generate the aws key pair and connect to the ec2 instance during provision.
+Generate an ssh key and name it `multi_wordpress`. the output files are `multi_wordpress` and `multi_wordpress.pub`. Save them to the root directory of this project.
+
+This keys will be used for 2 things:
+1. Generate the aws key pair and connect to the ec2 instance during provision
+2. For authentication for private repository where you will place your code
+
+These keys will be uploaded to a private s3 bucket that your ec2 instance can access.
 
 NOTE: store these keys securely, but make them available within the root directory during deployment operations involving Terraform as the config file will be referencing them.
 
@@ -188,9 +194,10 @@ These are notes in point form. Require organising and update before merging into
 * makefile using -target flag to destroy all resources except the ebs_volume that needs to persist, refer [this issue](https://github.com/terraform-providers/terraform-provider-aws/)issues/2416)
 * `depends_on` module not working for `module`. So there may be race condition when creating the s3 secrets bucket and its logging bucket if they do not already exist.
 * s3 secrets folder to store all ssh keys (https://stackoverflow.com/a/52868251/2667545) to git pull
+* startup.sh script need to give time for permission to propagate
 
 ## Current Progress
-mount ebs and only format it if empty
-create folders
-
-## TODO
+docker-compose split into diff env
+logs split
+remove nginx.conf
+write script to add content to docker-compose.production.yml file, nginx.conf, and startup.sh files

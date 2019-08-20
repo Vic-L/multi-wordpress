@@ -1,8 +1,17 @@
 #!/usr/bin/env bash
 
+echo Installing necessary packages
 sudo yum -y update
 sudo yum -y install docker git
+sudo service docker start
+sudo chmod 666 /var/run/docker.sock
 
+echo Create swapfile
+dd if=/dev/zero of=/swapfile bs=1M count=1024
+mkswap /swapfile
+swapon /swapfile
+
+echo Mounting EBS volume and creating necessary folders
 # with reference to https://devopscube.com/mount-ebs-volume-ec2-instance/
 if [[ $(sudo file -s /dev/xvdf) == "/dev/xvdf: data" ]]
 then

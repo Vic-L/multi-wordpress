@@ -11,3 +11,11 @@ module "secrets_bucket" {
   logging_bucket = var.secrets_logging_bucket_name
   use_account_alias_prefix = "true"
 }
+
+resource "aws_s3_bucket_object" "ssh_key" {
+  bucket = module.secrets_bucket.id
+  key = "ssh_key" # avoid using dynamic variable in key naming
+  source = "multi_wordpress"
+
+  etag = "${filemd5("multi_wordpress")}"
+}

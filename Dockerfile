@@ -3,6 +3,7 @@ WORKDIR /workspace
 
 COPY ./variables.tf .
 COPY ./data.tf .
+COPY ./terraform.tf .
 
 COPY ./provider.tf .
 RUN terraform init
@@ -10,8 +11,7 @@ RUN terraform init
 COPY ./secrets_bucket.tf .
 RUN terraform init
 
-COPY ./startup.sh startup.sh
-COPY ./automount_reboot.sh automount_reboot.sh
+COPY scripts ./scripts
 COPY ./scripts.tf .
 RUN terraform init
 
