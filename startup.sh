@@ -14,14 +14,21 @@ fi
 
 echo "Creating /multi_wordpress_volume, changing permissions and mounting EBS volume"
 sudo mkdir -p /multi_wordpress_volume
+sudo mount /dev/xvdf /multi_wordpress_volume/
 sudo chmod -R 775 /multi_wordpress_volume
 sudo chown -R $(whoami) /multi_wordpress_volume
 sudo chgrp -R $(whoami) /multi_wordpress_volume
-sudo mount /dev/xvdf /multi_wordpress_volume/
 
 echo "Creating volumes required for app"
-mkdir -p /multi_wordpress_volume/db1
-mkdir -p /multi_wordpress_volume/db2
-mkdir -p /multi_wordpress_volume/wp1
-mkdir -p /multi_wordpress_volume/wp2
-mkdir -p /multi_wordpress_volume/logs
+# Loop because permissions propagation have delay
+# conditional check for more than 1 directory instead of 0
+# because "lost+found" folder is created automatically
+until [[ $(ls -lA  /multi_wordpress_volume/ | egrep -c '^d') > 1 ]]
+do
+  echo "Permission of folder for mounted volume not propagated. Retrying mkdir using 'ec2-user'"
+  mkdir -p /multi_wordpress_volume/db1
+  mkdir -p /multi_wordpress_volume/db2
+  mkdir -p /multi_wordpress_volume/wp1
+  mkdir -p /multi_wordpress_volume/wp2
+  mkdir -p /multi_wordpress_volume/logs
+done
