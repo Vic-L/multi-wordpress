@@ -76,6 +76,9 @@ destroy: check-argument build
 # Development
 
 start:
-	docker-compose -f docker-compose.yml -f docker-compose.development.yml up -d
+	docker-compose -f docker-compose.base.yml -f docker-compose.development.yml up -d
 stop:
-	docker-compose -f docker-compose.yml -f docker-compose.development.yml down
+	docker-compose -f docker-compose.base.yml -f docker-compose.development.yml down
+
+setup:
+	./setup.sh

@@ -64,6 +64,7 @@ Port 9000 is used by `fastcgi_pass`. Do not set port to 9000 for visualizer.
 
 * Install Docker
 * Install Make
+* For macOS users, you may need to run `brew install grep` and append `export PATH="/usr/local/opt/grep/libexec/gnubin:$PATH"` to the end of your `.bashrc` to make use of `perl` in `GNU grep`.
 
 ## Usage
 

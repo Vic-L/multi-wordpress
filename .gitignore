@@ -4,3 +4,7 @@ multi_wordpress.pub
 db*
 wp*
 logs*
+
+# generated files
+docker-compose.production.yml
+nginx.conf

@@ -3,6 +3,8 @@ version: '3.7'
 services:
   # databases
   db1:
+    image: mysql:5.7
+    restart: always
     environment:
       MYSQL_ROOT_PASSWORD: wordpresspw_root1
       MYSQL_DATABASE: wordpressdb1
@@ -11,6 +13,8 @@ services:
     volumes:
       - ./db1:/var/lib/mysql
   db2:
+    image: mysql:5.7
+    restart: always
     environment:
       MYSQL_ROOT_PASSWORD: wordpresspw_root2
       MYSQL_DATABASE: wordpressdb2
@@ -21,6 +25,10 @@ services:
 
   # wordpress
   wp1:
+    image: wordpress:5-fpm
+    restart: always
+    volumes:
+      - ./php-uploads.ini:/usr/local/etc/php/conf.d/uploads.ini
     depends_on:
       - db1
     environment:
@@ -32,6 +40,10 @@ services:
     volumes:
       - ./wp1:/var/www/html/wp1
   wp2:
+    image: wordpress:5-fpm
+    restart: always
+    volumes:
+      - ./php-uploads.ini:/usr/local/etc/php/conf.d/uploads.ini
     depends_on:
       - db2
     environment:

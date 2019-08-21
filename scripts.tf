@@ -143,3 +143,15 @@ resource "null_resource" "app" {
     ]
   }
 }
+
+resource "null_resource" "files" {
+  provisioner "file" {
+    source = "./nginx.conf"
+    destination = "/multi_wordpress_volume/nginx.conf"
+  }
+
+  provisioner "file" {
+    source = "./docker-compose.production.yml"
+    destination = "/multi_wordpress_volume/docker-compose.production.yml"
+  }
+}
